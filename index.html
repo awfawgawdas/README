@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Randise — Рулетка с именами и пьедестал</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-wrap">
+        <div class="logo-icon">🎡</div>
+        <div class="logo-text">
+          <h1>RANDISE</h1>
+          <span>Интерактивная рулетка участников • Темно-пурпурная тема</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="audioToggleBtn" class="icon-btn" title="Звук вкл/выкл">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+        <button id="fullscreenToggleBtn" class="icon-btn" title="Полноэкранный режим">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main 3-Column Work Area -->
+    <main class="main-grid">
+
+      <!-- LEFT COLUMN: Winners & Podium (1, 2, 3 места) -->
+      <section class="glass-panel winners-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>🏆</span> Пьедестал призеров
+            <span class="badge" id="winnerCountBadge">0</span>
+          </div>
+          <button class="panel-action-btn" id="clearWinnersBtn" title="Сбросить историю победителей">Сбросить</button>
+        </div>
+
+        <!-- 1st Place Hero Card -->
+        <div class="first-place-hero" id="firstPlaceCard" style="display: none;">
+          <div class="crown-badge">👑</div>
+          <div class="first-place-info">
+            <span class="tag">1-е Место • Чемпион</span>
+            <h3 id="firstPlaceName">—</h3>
+            <p id="firstPlaceDetails">Победитель 1-го раунда</p>
+          </div>
+        </div>
+
+        <!-- Scrollable Winners List (1-е, 2-е, 3-е места) -->
+        <div class="winners-scroll" id="winnersList">
+          <div class="empty-winners">
+            <span>🏆</span>
+            <p>Победителей пока нет</p>
+            <small>Запустите рулетку, чтобы определить 1-е место!</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER COLUMN: Interactive Wheel / Tape Roulette -->
+      <section class="glass-panel roulette-panel">
+        <!-- Mode Switcher -->
+        <div class="view-tabs">
+          <button class="tab-btn active" id="viewWheelTab">
+            <span>🎡</span> Колесо Фортуны
+          </button>
+          <button class="tab-btn" id="viewTapeTab">
+            <span>🎰</span> Лента Рулетки
+          </button>
+        </div>
+
+        <!-- Live Ticker HUD -->
+        <div class="live-ticker-hud" id="liveTicker">
+          <div class="ticker-badge" id="tickerBadge"></div>
+          <span class="ticker-label">Под стрелкой:</span>
+          <span class="ticker-name" id="currentTickerName">Ожидание старта...</span>
+        </div>
+
+        <!-- View 1: Canvas Circular Wheel -->
+        <div class="wheel-container-wrapper" id="wheelWrapper">
+          <canvas id="wheelCanvas" width="540" height="540"></canvas>
+        </div>
+
+        <!-- View 2: Horizontal Tape / CS:GO Reel -->
+        <div class="tape-container-wrapper" id="tapeWrapper">
+          <div class="tape-container" id="tapeContainer">
+            <div class="tape-pointer-line"></div>
+            <div class="tape-track" id="tapeTrack"></div>
+          </div>
+        </div>
+
+        <!-- Big Spin Action Button -->
+        <div class="spin-action-area">
+          <button class="spin-btn" id="spinBtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span id="spinBtnText">КРУТИТЬ РУЛЕТКУ (1 МЕСТО)</span>
+          </button>
+          <div class="shortcut-hint">
+            Нажмите <span class="kbd">Пробел</span> для быстрого запуска
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: Registration & Participants Table -->
+      <section class="glass-panel participants-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>👥</span> Участники
+            <span class="badge" id="userCountBadge">0</span>
+          </div>
+        </div>
+
+        <!-- 2 Main Requested Action Buttons: "Обновить все" & "Удалить все" -->
+        <div class="main-action-buttons">
+          <button class="primary-action-btn refresh-btn" id="resetAllBtn" title="Вернуть всех участников в прежний список и сбросить раунды к 1 месту">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+              <path d="M21 3v5h-5"/>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+              <path d="M8 16H3v5"/>
+            </svg>
+            <span>Обновить все</span>
+          </button>
+          <button class="primary-action-btn danger-btn" id="deleteAllBtn" title="Удалить всех участников из списка">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            <span>Удалить все</span>
+          </button>
+        </div>
+
+        <!-- Secondary Quick Tools Bar -->
+        <div class="quick-tools-bar">
+          <button class="tool-chip-btn" id="demoUsersBtn" title="Загрузить тестовый список">
+            <span>✨</span> Демо-список
+          </button>
+          <button class="tool-chip-btn" id="shuffleUsersBtn" title="Перемешать участников случайным образом">
+            <span>🔀</span> Перемешать
+          </button>
+          <button class="tool-chip-btn" id="bulkAddBtn" title="Добавить сразу много имен списком">
+            <span>📝</span> Списком
+          </button>
+        </div>
+
+        <!-- Input Box for New Users (Enter to add) -->
+        <div class="input-box-wrapper">
+          <div class="input-container">
+            <input type="text" id="usernameInput" placeholder="Введите имя и нажмите Enter ↵" autocomplete="off" maxlength="40">
+            <div class="input-enter-icon">↵ Enter</div>
+          </div>
+          <button class="add-btn" id="addUserBtn" title="Добавить участника">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Participants Table with dynamic colors & inline row input -->
+        <div class="table-scroll-container">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th style="width: 32px;">#</th>
+                <th style="width: 44px;">Цвет</th>
+                <th>Имя участника</th>
+                <th style="width: 36px; text-align: right;">Удал.</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Dynamically populated rows + inline input row -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- FULLSCREEN WINNER CELEBRATION (НА ВЕСЬ ЭКРАН) -->
+  <div class="fullscreen-winner-overlay" id="winnerModal">
+    <div class="fullscreen-winner-content">
+      <button class="fullscreen-close-btn" id="closeModalBtn" title="Закрыть (Esc)">&times;</button>
+      
+      <div class="fullscreen-crown" id="fullscreenCrown">👑</div>
+      
+      <div class="fullscreen-place-pill" id="modalPlaceBadge">🥇 1 МЕСТО</div>
+      
+      <div class="fullscreen-avatar" id="modalAvatar">?</div>
+      
+      <!-- Big Bold Headline: "{Имя} выиграл(а) 1 место!" -->
+      <h1 class="fullscreen-title" id="fullscreenWinTitle">
+        <span class="highlight-name" id="modalWinnerName">Айя</span> выиграла 1 место!
+      </h1>
+      
+      <p class="fullscreen-subtitle" id="fullscreenWinSubtitle">
+        Поздравляем! Победитель занял 1-е место на пьедестале и автоматически исключён из списка участников рулетки.
+      </p>
+      
+      <div class="fullscreen-actions">
+        <button class="win-btn-primary" id="continueSpinBtn">Крутить дальше (2-е место) ➔</button>
+        <button class="win-btn-secondary" id="closeModalBtnSecondary">Закрыть окно</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BULK ADD MODAL -->
+  <div class="modal-overlay" id="bulkModal">
+    <div class="modal-card">
+      <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Добавление списком</h2>
+      <p style="font-size: 13px; color: var(--text-muted);">
+        Вставьте список имен (каждое имя с новой строки или через запятую):
+      </p>
+      <textarea id="bulkTextarea" class="bulk-textarea" placeholder="Айя&#10;Алексей Морозов&#10;Екатерина Смирнова"></textarea>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="bulkCancelBtn">Отмена</button>
+        <button class="btn-primary" id="bulkSaveBtn">Добавить всех</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti script -->
+  <script src="confetti.js"></script>
+  <!-- Application script -->
+  <script src="app.js"></script>
+</body>
+</html>

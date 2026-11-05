@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Randise — Рулетка с именами и пьедестал</title>
+  <title>Randise — Казино Рулетка Участников</title>
   <!-- Google Fonts: Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,14 +11,17 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- 3D Continuous Quantum Atom / Randomizer Core Background -->
+  <canvas id="bg3d-canvas"></canvas>
+
   <div class="app-container">
     <!-- Header -->
-    <header class="app-header">
+    <header class="app-header glass-panel">
       <div class="logo-wrap">
-        <div class="logo-icon">🎡</div>
+        <div class="logo-icon">🎰</div>
         <div class="logo-text">
-          <h1>RANDISE</h1>
-          <span>Интерактивная рулетка участников • Темно-пурпурная тема</span>
+          <h1>RANDISE CASINO</h1>
+          <span>Рандомайзер участников с механическим рычагом</span>
         </div>
       </div>
       <div class="header-actions">
@@ -40,7 +43,7 @@
     <main class="main-grid">
 
       <!-- LEFT COLUMN: Winners & Podium (1, 2, 3 места) -->
-      <section class="glass-panel winners-panel">
+      <section class="glass-panel winners-panel interactive-panel">
         <div class="panel-header">
           <div class="panel-title">
             <span>🏆</span> Пьедестал призеров
@@ -53,7 +56,7 @@
         <div class="first-place-hero" id="firstPlaceCard" style="display: none;">
           <div class="crown-badge">👑</div>
           <div class="first-place-info">
-            <span class="tag">1-е Место • Чемпион</span>
+            <span class="tag">1-е Место</span>
             <h3 id="firstPlaceName">—</h3>
             <p id="firstPlaceDetails">Победитель 1-го раунда</p>
           </div>
@@ -64,13 +67,13 @@
           <div class="empty-winners">
             <span>🏆</span>
             <p>Победителей пока нет</p>
-            <small>Запустите рулетку, чтобы определить 1-е место!</small>
+            <small>Потяните рычаг, чтобы разыграть 1-е место!</small>
           </div>
         </div>
       </section>
 
-      <!-- CENTER COLUMN: Interactive Wheel / Tape Roulette -->
-      <section class="glass-panel roulette-panel">
+      <!-- CENTER COLUMN: Interactive Wheel with Casino Slot Lever -->
+      <section class="glass-panel roulette-panel interactive-panel">
         <!-- Mode Switcher -->
         <div class="view-tabs">
           <button class="tab-btn active" id="viewWheelTab">
@@ -88,35 +91,63 @@
           <span class="ticker-name" id="currentTickerName">Ожидание старта...</span>
         </div>
 
-        <!-- View 1: Canvas Circular Wheel -->
-        <div class="wheel-container-wrapper" id="wheelWrapper">
-          <canvas id="wheelCanvas" width="540" height="540"></canvas>
-        </div>
-
-        <!-- View 2: Horizontal Tape / CS:GO Reel -->
-        <div class="tape-container-wrapper" id="tapeWrapper">
-          <div class="tape-container" id="tapeContainer">
-            <div class="tape-pointer-line"></div>
-            <div class="tape-track" id="tapeTrack"></div>
+        <!-- Casino Roulette Stage (Lever on Left + Wheel in Center) -->
+        <div class="roulette-stage">
+          
+          <!-- Realistic Casino Slot Machine Lever -->
+          <div class="casino-lever-container" id="casinoLeverContainer" title="Потяните рычаг вниз, чтобы крутить рулетку!">
+            <div class="lever-badge">ДЁРНИТЕ РЫЧАГ</div>
+            <div class="casino-lever" id="casinoLever">
+              <div class="lever-housing">
+                <div class="lever-socket"></div>
+                <div class="lever-pivot" id="leverPivot">
+                  <div class="lever-shaft">
+                    <div class="lever-shaft-highlight"></div>
+                  </div>
+                  <div class="lever-knob" id="leverKnob">
+                    <div class="lever-knob-glow"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="lever-drag-hint">
+              <span class="arrow-bounce">⬇</span>
+              <span>ТЯНИ ВНИЗ</span>
+            </div>
           </div>
+
+          <!-- Roulette Display (Wheel or Tape) -->
+          <div class="roulette-main-display">
+            <!-- View 1: Canvas Circular Wheel -->
+            <div class="wheel-container-wrapper" id="wheelWrapper">
+              <canvas id="wheelCanvas" width="520" height="520"></canvas>
+            </div>
+
+            <!-- View 2: Horizontal Tape / CS:GO Reel -->
+            <div class="tape-container-wrapper" id="tapeWrapper">
+              <div class="tape-container" id="tapeContainer">
+                <div class="tape-pointer-line"></div>
+                <div class="tape-track" id="tapeTrack"></div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Big Spin Action Button -->
-        <div class="spin-action-area">
-          <button class="spin-btn" id="spinBtn">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-            <span id="spinBtnText">КРУТИТЬ РУЛЕТКУ (1 МЕСТО)</span>
-          </button>
+        <!-- Status Pill (Replaces the big button) -->
+        <div class="lever-status-area">
+          <div class="lever-status-pill" id="leverStatusPill">
+            <span>🎰</span>
+            <span id="spinStatusText">Потяните рычаг слева (Раунд на 1 место)</span>
+          </div>
           <div class="shortcut-hint">
-            Нажмите <span class="kbd">Пробел</span> для быстрого запуска
+            или нажмите <span class="kbd">Пробел</span>
           </div>
         </div>
       </section>
 
       <!-- RIGHT COLUMN: Registration & Participants Table -->
-      <section class="glass-panel participants-panel">
+      <section class="glass-panel participants-panel interactive-panel">
         <div class="panel-header">
           <div class="panel-title">
             <span>👥</span> Участники
@@ -124,10 +155,10 @@
           </div>
         </div>
 
-        <!-- 2 Main Requested Action Buttons: "Обновить все" & "Удалить все" -->
+        <!-- 2 Main Action Buttons: "Обновить все" & "Удалить все" -->
         <div class="main-action-buttons">
           <button class="primary-action-btn refresh-btn" id="resetAllBtn" title="Вернуть всех участников в прежний список и сбросить раунды к 1 месту">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
               <path d="M21 3v5h-5"/>
               <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
@@ -136,7 +167,7 @@
             <span>Обновить все</span>
           </button>
           <button class="primary-action-btn danger-btn" id="deleteAllBtn" title="Удалить всех участников из списка">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M3 6h18"/>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
               <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -145,16 +176,13 @@
           </button>
         </div>
 
-        <!-- Secondary Quick Tools Bar -->
+        <!-- Quick Tools -->
         <div class="quick-tools-bar">
           <button class="tool-chip-btn" id="demoUsersBtn" title="Загрузить тестовый список">
             <span>✨</span> Демо-список
           </button>
           <button class="tool-chip-btn" id="shuffleUsersBtn" title="Перемешать участников случайным образом">
             <span>🔀</span> Перемешать
-          </button>
-          <button class="tool-chip-btn" id="bulkAddBtn" title="Добавить сразу много имен списком">
-            <span>📝</span> Списком
           </button>
         </div>
 
@@ -165,14 +193,14 @@
             <div class="input-enter-icon">↵ Enter</div>
           </div>
           <button class="add-btn" id="addUserBtn" title="Добавить участника">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
           </button>
         </div>
 
-        <!-- Participants Table with dynamic colors & inline row input -->
+        <!-- Participants Table (No extra bottom panels) -->
         <div class="table-scroll-container">
           <table class="users-table">
             <thead>
@@ -184,7 +212,7 @@
               </tr>
             </thead>
             <tbody id="usersTableBody">
-              <!-- Dynamically populated rows + inline input row -->
+              <!-- Dynamically populated rows -->
             </tbody>
           </table>
         </div>
@@ -193,48 +221,24 @@
     </main>
   </div>
 
-  <!-- FULLSCREEN WINNER CELEBRATION (НА ВЕСЬ ЭКРАН) -->
+  <!-- CLEAN FULLSCREEN WINNER CELEBRATION (БЕЗ ЛИШНИХ ПАНЕЛЕЙ И ПОДРОБНОСТЕЙ) -->
   <div class="fullscreen-winner-overlay" id="winnerModal">
-    <div class="fullscreen-winner-content">
-      <button class="fullscreen-close-btn" id="closeModalBtn" title="Закрыть (Esc)">&times;</button>
-      
-      <div class="fullscreen-crown" id="fullscreenCrown">👑</div>
-      
-      <div class="fullscreen-place-pill" id="modalPlaceBadge">🥇 1 МЕСТО</div>
-      
-      <div class="fullscreen-avatar" id="modalAvatar">?</div>
-      
-      <!-- Big Bold Headline: "{Имя} выиграл(а) 1 место!" -->
-      <h1 class="fullscreen-title" id="fullscreenWinTitle">
-        <span class="highlight-name" id="modalWinnerName">Айя</span> выиграла 1 место!
+    <div class="clean-winner-card">
+      <div class="clean-winner-sparkle">🎉</div>
+      <!-- Punchy, clean statement: "Выпал(а) Айя!" -->
+      <h1 class="clean-winner-title" id="cleanWinnerTitle">
+        Выпала <span class="clean-winner-name" id="cleanWinnerName">Айя</span>!
       </h1>
-      
-      <p class="fullscreen-subtitle" id="fullscreenWinSubtitle">
-        Поздравляем! Победитель занял 1-е место на пьедестале и автоматически исключён из списка участников рулетки.
-      </p>
-      
-      <div class="fullscreen-actions">
-        <button class="win-btn-primary" id="continueSpinBtn">Крутить дальше (2-е место) ➔</button>
-        <button class="win-btn-secondary" id="closeModalBtnSecondary">Закрыть окно</button>
-      </div>
+      <!-- Place indicator: "1 место", "2 место", etc. -->
+      <div class="clean-winner-place" id="cleanWinnerPlace">🥇 1 место</div>
+      <button class="clean-winner-btn" id="continueSpinBtn">Продолжить ➔</button>
     </div>
   </div>
 
-  <!-- BULK ADD MODAL -->
-  <div class="modal-overlay" id="bulkModal">
-    <div class="modal-card">
-      <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Добавление списком</h2>
-      <p style="font-size: 13px; color: var(--text-muted);">
-        Вставьте список имен (каждое имя с новой строки или через запятую):
-      </p>
-      <textarea id="bulkTextarea" class="bulk-textarea" placeholder="Айя&#10;Алексей Морозов&#10;Екатерина Смирнова"></textarea>
-      <div class="modal-actions">
-        <button class="btn-secondary" id="bulkCancelBtn">Отмена</button>
-        <button class="btn-primary" id="bulkSaveBtn">Добавить всех</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- Three.js (Offline bundled) -->
+  <script src="three.min.js"></script>
+  <!-- 3D Continuous Background Script -->
+  <script src="three-bg.js"></script>
   <!-- Confetti script -->
   <script src="confetti.js"></script>
   <!-- Application script -->

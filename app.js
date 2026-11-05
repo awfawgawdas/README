@@ -1,17 +1,15 @@
 /**
- * Randise - Interactive Roulette Wheel & Participant Manager
+ * Randise Casino - Interactive Roulette Wheel with Casino Slot Lever
  * 
  * Features:
- * - Darkened Violet-Purple Cyberpunk Aesthetic
- * - Dynamic Canvas-based Retina Roulette Wheel
- * - CS:GO style Horizontal Reel / Tape Roulette mode
- * - Fullscreen Winner Announcement (на весь экран): "Айя выиграла 1 место!"
- * - Progressive Places: 1-е место -> 2-е место -> 3-е место...
- * - Auto-removal of winner from right-hand list upon landing
- * - "Обновить все" button: returns all winners back to the list and resets round to 1st place
- * - "Удалить все" button: empties all participants
- * - Web Audio API procedural synthesizer (sound effects)
- * - Multi-stage Fullscreen Confetti Celebration
+ * - Mechanical Casino Slot Machine Lever on the left
+ * - 3D Continuous Quantum Atom / Randomizer Core Background (via Three.js)
+ * - Interactive Movable Panels on Hover (3D Perspective Tilt)
+ * - Clean Winner Screen: "Выпал(а) [Имя]! [N] место" without extra panels
+ * - Progressive Places: 1-е -> 2-е -> 3-е место...
+ * - Clean Participants Table without extra bottom panels
+ * - "Обновить все" (reset/restore all) and "Удалить все" (clear all)
+ * - Web Audio API procedural sound synthesizer
  */
 
 (function () {
@@ -83,6 +81,50 @@
       if (this.ctx && this.ctx.state === 'suspended') {
         this.ctx.resume();
       }
+    }
+
+    // Casino Slot Mechanical Lever Pull Sound
+    playLeverPull() {
+      if (!this.enabled) return;
+      this.init();
+      if (!this.ctx) return;
+
+      try {
+        const now = this.ctx.currentTime;
+
+        // 1. Heavy mechanical clunk / ratchet
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.18);
+
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.18);
+
+        // 2. High metallic spring ratchet tick
+        setTimeout(() => {
+          if (!this.ctx) return;
+          const osc2 = this.ctx.createOscillator();
+          const gain2 = this.ctx.createGain();
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(880, this.ctx.currentTime);
+          osc2.frequency.exponentialRampToValueAtTime(220, this.ctx.currentTime + 0.08);
+
+          gain2.gain.setValueAtTime(0.28, this.ctx.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+
+          osc2.connect(gain2);
+          gain2.connect(this.ctx.destination);
+          osc2.start();
+          osc2.stop(this.ctx.currentTime + 0.08);
+        }, 90);
+      } catch (e) {}
     }
 
     playTick(pitchOffset = 0) {
@@ -183,17 +225,17 @@
   ];
 
   let users = [];
-  let winners = []; // Sequential: [0]=1-е место, [1]=2-е место, [2]=3-е место...
-  let initialPool = []; // To restore when clicking "Обновить все"
+  let winners = [];
+  let initialPool = [];
   let isSpinning = false;
-  let activeTab = 'wheel'; // 'wheel' or 'tape'
+  let activeTab = 'wheel';
   let needleDeflection = 0;
 
   function loadState() {
     try {
-      const storedUsers = localStorage.getItem('randise_v2_users');
-      const storedWinners = localStorage.getItem('randise_v2_winners');
-      const storedPool = localStorage.getItem('randise_v2_pool');
+      const storedUsers = localStorage.getItem('randise_v3_users');
+      const storedWinners = localStorage.getItem('randise_v3_winners');
+      const storedPool = localStorage.getItem('randise_v3_pool');
 
       users = storedUsers !== null ? JSON.parse(storedUsers) : [...DEFAULT_USERS];
       winners = storedWinners !== null ? JSON.parse(storedWinners) : [];
@@ -207,9 +249,9 @@
 
   function saveState() {
     try {
-      localStorage.setItem('randise_v2_users', JSON.stringify(users));
-      localStorage.setItem('randise_v2_winners', JSON.stringify(winners));
-      localStorage.setItem('randise_v2_pool', JSON.stringify(initialPool));
+      localStorage.setItem('randise_v3_users', JSON.stringify(users));
+      localStorage.setItem('randise_v3_winners', JSON.stringify(winners));
+      localStorage.setItem('randise_v3_pool', JSON.stringify(initialPool));
     } catch (e) {}
   }
 
@@ -220,8 +262,13 @@
     el.wheelCanvas = document.getElementById('wheelCanvas');
     el.tapeContainer = document.getElementById('tapeContainer');
     el.tapeTrack = document.getElementById('tapeTrack');
-    el.spinBtn = document.getElementById('spinBtn');
-    el.spinBtnText = document.getElementById('spinBtnText');
+
+    // Casino Lever elements
+    el.casinoLeverContainer = document.getElementById('casinoLeverContainer');
+    el.casinoLever = document.getElementById('casinoLever');
+    el.spinStatusText = document.getElementById('spinStatusText');
+    el.leverStatusPill = document.getElementById('leverStatusPill');
+
     el.viewWheelTab = document.getElementById('viewWheelTab');
     el.viewTapeTab = document.getElementById('viewTapeTab');
     el.wheelWrapper = document.getElementById('wheelWrapper');
@@ -233,13 +280,11 @@
     el.addUserBtn = document.getElementById('addUserBtn');
     el.usersTableBody = document.getElementById('usersTableBody');
     el.userCountBadge = document.getElementById('userCountBadge');
-    
-    // Requested buttons
+
     el.resetAllBtn = document.getElementById('resetAllBtn');
     el.deleteAllBtn = document.getElementById('deleteAllBtn');
     el.shuffleUsersBtn = document.getElementById('shuffleUsersBtn');
     el.demoUsersBtn = document.getElementById('demoUsersBtn');
-    el.bulkAddBtn = document.getElementById('bulkAddBtn');
 
     el.winnersList = document.getElementById('winnersList');
     el.winnerCountBadge = document.getElementById('winnerCountBadge');
@@ -251,22 +296,12 @@
     el.audioToggleBtn = document.getElementById('audioToggleBtn');
     el.fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
 
-    // Fullscreen Winner Overlay
+    // Clean Winner Modal
     el.winnerModal = document.getElementById('winnerModal');
-    el.fullscreenWinTitle = document.getElementById('fullscreenWinTitle');
-    el.fullscreenWinSubtitle = document.getElementById('fullscreenWinSubtitle');
-    el.modalWinnerName = document.getElementById('modalWinnerName');
-    el.modalPlaceBadge = document.getElementById('modalPlaceBadge');
-    el.modalAvatar = document.getElementById('modalAvatar');
-    el.fullscreenCrown = document.getElementById('fullscreenCrown');
-    el.closeModalBtn = document.getElementById('closeModalBtn');
-    el.closeModalBtnSecondary = document.getElementById('closeModalBtnSecondary');
+    el.cleanWinnerTitle = document.getElementById('cleanWinnerTitle');
+    el.cleanWinnerName = document.getElementById('cleanWinnerName');
+    el.cleanWinnerPlace = document.getElementById('cleanWinnerPlace');
     el.continueSpinBtn = document.getElementById('continueSpinBtn');
-
-    el.bulkModal = document.getElementById('bulkModal');
-    el.bulkTextarea = document.getElementById('bulkTextarea');
-    el.bulkCancelBtn = document.getElementById('bulkCancelBtn');
-    el.bulkSaveBtn = document.getElementById('bulkSaveBtn');
   }
 
   // --- CANVAS WHEEL ---
@@ -313,7 +348,6 @@
     ctx.clearRect(0, 0, width, height);
 
     if (users.length === 0) {
-      // Empty wheel placeholder
       ctx.save();
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
@@ -327,7 +361,7 @@
       ctx.font = '600 15px Inter, system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('Добавьте участников справа или нажмите «Обновить все» ➔', centerX, centerY);
+      ctx.fillText('Добавьте участников справа ➔', centerX, centerY);
       ctx.restore();
       return;
     }
@@ -359,7 +393,7 @@
     ctx.strokeStyle = '#270c43';
     ctx.stroke();
 
-    // Rim indicator studs
+    // Rim studs
     const numStuds = Math.max(16, Math.min(64, numSlices * 2));
     for (let i = 0; i < numStuds; i++) {
       const studAngle = (i * 2 * Math.PI) / numStuds;
@@ -381,7 +415,6 @@
       const endAngle = startAngle + sliceAngle;
       const color = getColorForIndex(i);
 
-      // Slice sector
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.arc(0, 0, radius, startAngle, endAngle);
@@ -389,7 +422,6 @@
       ctx.fillStyle = color.bg;
       ctx.fill();
 
-      // Inner highlight gradient
       ctx.save();
       ctx.clip();
       const grad = ctx.createRadialGradient(0, 0, radius * 0.15, 0, 0, radius);
@@ -400,7 +432,6 @@
       ctx.fill();
       ctx.restore();
 
-      // Sector border line
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.arc(0, 0, radius, startAngle, endAngle);
@@ -436,7 +467,6 @@
         displayName += '…';
       }
 
-      // Dark background pill under text for high-contrast readability
       const metrics = ctx.measureText(displayName);
       const pillWidth = metrics.width + 14;
       const pillHeight = fontSize + 7;
@@ -476,7 +506,6 @@
     ctx.strokeStyle = '#c026d3';
     ctx.stroke();
 
-    // Center dot
     ctx.beginPath();
     ctx.arc(0, 0, 8, 0, 2 * Math.PI);
     ctx.fillStyle = '#f472b6';
@@ -517,10 +546,10 @@
 
     ctx.restore();
 
-    ctx.restore(); // end translate(centerX, centerY)
+    ctx.restore(); // end translate
   }
 
-  // --- TAPE / REEL CS:GO MODE ---
+  // --- TAPE CS:GO REEL MODE ---
   let tapeItems = [];
 
   function setupTapeTrack() {
@@ -567,39 +596,56 @@
     }
   }
 
-  // --- SPIN LOGIC & ROUND PROGRESSION ---
+  // --- CASINO LEVER PULL & SPIN LOGIC ---
   function getNextPlaceNumber() {
     return winners.length + 1;
   }
 
-  function updateSpinButton(spinning) {
-    el.spinBtn.disabled = spinning;
+  function updateStatusPill(spinning) {
     const nextPlace = getNextPlaceNumber();
     if (spinning) {
-      el.spinBtn.classList.add('spinning');
-      el.spinBtnText.textContent = `КРУТИТСЯ (${nextPlace} МЕСТО)...`;
+      el.leverStatusPill.classList.add('spinning');
+      el.spinStatusText.textContent = `Крутится рулетка (${nextPlace} МЕСТО)...`;
     } else {
-      el.spinBtn.classList.remove('spinning');
+      el.leverStatusPill.classList.remove('spinning');
       if (users.length > 0) {
-        el.spinBtnText.textContent = `КРУТИТЬ РУЛЕТКУ (${nextPlace} МЕСТО)`;
+        el.spinStatusText.textContent = `Потяните рычаг слева (Раунд на ${nextPlace} место)`;
       } else {
-        el.spinBtnText.textContent = 'ВСЕ МЕСТА РАЗЫГРАНЫ!';
+        el.spinStatusText.textContent = 'Все участники разыграны! Нажмите «Обновить все»';
       }
     }
   }
 
-  function spin() {
+  function pullLeverAndSpin() {
     if (isSpinning) return;
     if (users.length === 0) {
-      alert('Список участников пуст! Нажмите кнопку «Обновить все», чтобы вернуть всех участников, или добавьте новые имена.');
-      const inlineInput = document.getElementById('inlineUsernameInput');
-      if (inlineInput) inlineInput.focus();
-      else if (el.topUsernameInput) el.topUsernameInput.focus();
+      alert('Список участников пуст! Нажмите «Обновить все» или добавьте новые имена.');
+      if (el.topUsernameInput) el.topUsernameInput.focus();
       return;
     }
 
+    // Trigger mechanical lever pull animation
+    if (el.casinoLeverContainer) {
+      el.casinoLeverContainer.classList.add('pulling');
+    }
+    sfx.playLeverPull();
+
+    setTimeout(() => {
+      if (el.casinoLeverContainer) {
+        el.casinoLeverContainer.classList.remove('pulling');
+      }
+    }, 280);
+
+    // Spin start
+    spin();
+  }
+
+  function spin() {
+    if (isSpinning) return;
+    if (users.length === 0) return;
+
     isSpinning = true;
-    updateSpinButton(true);
+    updateStatusPill(true);
     sfx.playWhoosh();
 
     const winnerIndex = Math.floor(Math.random() * users.length);
@@ -733,53 +779,31 @@
     }
   }
 
-  // --- CELEBRATION & PROGRESSIVE PLACES (1 -> 2 -> 3 МЕСТО) ---
+  // --- CLEAN WINNER SCREEN (БЕЗ ЛИШНИХ ПАНЕЛЕЙ И ПОДРОБНОСТЕЙ) ---
   function getWinVerb(name) {
     const trimmed = name.trim();
     const lastChar = trimmed.slice(-1).toLowerCase();
-    // Names ending in 'а' or 'я' use feminine form ("выиграла"), else masculine ("выиграл")
-    if (lastChar === 'а' || lastChar === 'я') {
-      return 'выиграла';
-    }
-    return 'выиграл';
-  }
-
-  function getPlaceBadgeText(place) {
-    if (place === 1) return '🥇 1 МЕСТО';
-    if (place === 2) return '🥈 2 МЕСТО';
-    if (place === 3) return '🥉 3 МЕСТО';
-    return `🎖️ ${place} МЕСТО`;
-  }
-
-  function getCrownEmoji(place) {
-    if (place === 1) return '👑';
-    if (place === 2) return '🥈';
-    if (place === 3) return '🥉';
-    return '🎉';
+    return (lastChar === 'а' || lastChar === 'я') ? 'Выпала' : 'Выпал';
   }
 
   function fireCelebrationConfetti() {
     if (!window.confetti) return;
-    // Central burst
-    window.confetti({ particleCount: 140, origin: { x: 0.5, y: 0.45 } });
-    // Left cannon
+    window.confetti({ particleCount: 130, origin: { x: 0.5, y: 0.45 } });
     setTimeout(() => {
       if (window.confetti) {
-        window.confetti({ particleCount: 80, angleMin: 45, angleMax: 85, origin: { x: 0.1, y: 0.8 } });
+        window.confetti({ particleCount: 75, angleMin: 45, angleMax: 85, origin: { x: 0.1, y: 0.8 } });
       }
-    }, 250);
-    // Right cannon
+    }, 220);
     setTimeout(() => {
       if (window.confetti) {
-        window.confetti({ particleCount: 80, angleMin: 95, angleMax: 135, origin: { x: 0.9, y: 0.8 } });
+        window.confetti({ particleCount: 75, angleMin: 95, angleMax: 135, origin: { x: 0.9, y: 0.8 } });
       }
-    }, 450);
+    }, 400);
   }
 
   function onSpinComplete(winnerName, winnerIndex) {
     isSpinning = false;
 
-    // Determine place number: Spin 1 = 1-е место, Spin 2 = 2-е место, Spin 3 = 3-е место...
     const place = winners.length + 1;
     const winnerColor = getColorForIndex(winnerIndex);
 
@@ -790,7 +814,6 @@
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    // Sequential push so 1st place is at index 0, 2nd at index 1, 3rd at index 2
     winners.push(newWinnerRecord);
 
     // Requirement: "он должн автоматом вылетать из списка который предоставлен справа"
@@ -798,62 +821,37 @@
 
     saveState();
 
-    // Re-render
     renderUsersTable();
     renderWinnersList();
     drawWheel();
     if (activeTab === 'tape') renderTape();
-    updateSpinButton(false);
+    updateStatusPill(false);
 
-    // Audio fanfare & Fullscreen Confetti
     sfx.playWinFanfare();
     fireCelebrationConfetti();
 
-    // Show Fullscreen Winner Announcement
-    showFullscreenWinner(newWinnerRecord);
+    showCleanWinner(newWinnerRecord);
   }
 
-  function showFullscreenWinner(winner) {
+  function showCleanWinner(winner) {
     const verb = getWinVerb(winner.name);
     const place = winner.place;
 
-    // Fullscreen Title: e.g. "Айя выиграла 1 место!"
-    el.fullscreenWinTitle.innerHTML = `<span class="highlight-name">${escapeHtml(winner.name)}</span> ${verb} ${place} место!`;
-
-    // Subtitle
-    el.fullscreenWinSubtitle.textContent = `Поздравляем! Победитель занял ${place}-е место на пьедестале и автоматически исключён из списка участников.`;
-
-    // Place badge
-    el.modalPlaceBadge.textContent = getPlaceBadgeText(place);
-    el.fullscreenCrown.textContent = getCrownEmoji(place);
-
-    // Avatar
-    el.modalAvatar.style.backgroundColor = winner.color.bg;
-    el.modalAvatar.style.color = winner.color.text;
-    el.modalAvatar.textContent = getInitials(winner.name);
-
-    // Next round action button
-    const nextPlace = place + 1;
-    if (users.length > 0) {
-      el.continueSpinBtn.textContent = `Крутить дальше (${nextPlace}-е место) ➔`;
-      el.continueSpinBtn.style.display = 'inline-flex';
-    } else {
-      el.continueSpinBtn.textContent = 'Все участники разыграны! 🏆';
-      el.continueSpinBtn.style.display = 'inline-flex';
-    }
+    // Requirement: "вот выпал человек и нужно написать то что выпал такой то человек и все без всяких лишних панелей"
+    el.cleanWinnerTitle.innerHTML = `${verb} <span class="clean-winner-name">${escapeHtml(winner.name)}</span>!`;
+    el.cleanWinnerPlace.textContent = `🥇 ${place} место`;
 
     el.winnerModal.classList.add('active');
   }
 
-  function hideFullscreenWinner() {
+  function hideCleanWinner() {
     el.winnerModal.classList.remove('active');
   }
 
-  // --- "ОБНОВИТЬ ВСЕ" (RESET/RESTORE ALL USERS) & "УДАЛИТЬ ВСЕ" ---
+  // --- "ОБНОВИТЬ ВСЕ" (RESET/RESTORE ALL) & "УДАЛИТЬ ВСЕ" ---
   function resetAll() {
     if (isSpinning) return;
 
-    // Collect all unique names from initialPool, users and winners
     const allKnown = new Set();
     initialPool.forEach(name => allKnown.add(name));
     users.forEach(name => allKnown.add(name));
@@ -864,24 +862,23 @@
     }
 
     users = Array.from(allKnown);
-    winners = []; // Reset places back to 1-е место!
+    winners = [];
 
     saveState();
     renderUsersTable();
     renderWinnersList();
     drawWheel();
     if (activeTab === 'tape') renderTape();
-    updateSpinButton(false);
+    updateStatusPill(false);
 
-    // Visual feedback
-    alert(`Список обновлен! Все ${users.length} участников возвращены в рулетку, следующий раунд начнется с 1 места.`);
+    alert(`Все участники (${users.length}) возвращены! Раунды сброшены к 1 месту.`);
   }
 
   function deleteAll() {
     if (isSpinning) return;
     if (users.length === 0 && winners.length === 0) return;
 
-    if (confirm('Вы уверены, что хотите удалить ВСЕХ участников из списка?')) {
+    if (confirm('Удалить всех участников из списка?')) {
       users = [];
       winners = [];
       initialPool = [];
@@ -890,7 +887,7 @@
       renderWinnersList();
       drawWheel();
       if (activeTab === 'tape') renderTape();
-      updateSpinButton(false);
+      updateStatusPill(false);
     }
   }
 
@@ -898,6 +895,22 @@
   function renderUsersTable() {
     el.usersTableBody.innerHTML = '';
     el.userCountBadge.textContent = users.length;
+
+    if (users.length === 0) {
+      const emptyRow = document.createElement('tr');
+      emptyRow.className = 'empty-row';
+      emptyRow.innerHTML = `
+        <td colspan="4" class="empty-cell">
+          <div class="empty-placeholder">
+            <span>✨</span>
+            <p>Список пуст</p>
+            <small>Напишите имя выше и нажмите Enter</small>
+          </div>
+        </td>
+      `;
+      el.usersTableBody.appendChild(emptyRow);
+      return;
+    }
 
     const fragment = document.createDocumentFragment();
 
@@ -919,7 +932,7 @@
         </td>
         <td class="col-actions">
           <button class="row-delete-btn" title="Удалить из списка" data-index="${index}">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M18 6L6 18M6 6l12 12"/>
             </svg>
           </button>
@@ -929,42 +942,7 @@
       fragment.appendChild(row);
     });
 
-    // Inline input row directly inside the table
-    const inlineRow = document.createElement('tr');
-    inlineRow.className = 'inline-input-row';
-    inlineRow.innerHTML = `
-      <td class="col-num" style="color: var(--accent-magenta); font-weight: 800;">+</td>
-      <td class="col-avatar">
-        <div class="inline-avatar-placeholder">✏️</div>
-      </td>
-      <td class="col-name" colspan="2">
-        <div class="inline-input-wrapper">
-          <input type="text" id="inlineUsernameInput" class="inline-table-input" placeholder="Напишите юзернейм и нажмите Enter ↵" autocomplete="off" maxlength="40">
-          <span class="inline-enter-hint">Enter ↵</span>
-        </div>
-      </td>
-    `;
-    fragment.appendChild(inlineRow);
-
     el.usersTableBody.appendChild(fragment);
-
-    // Attach listener to inline input
-    const inlineInput = document.getElementById('inlineUsernameInput');
-    if (inlineInput) {
-      inlineInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          const val = inlineInput.value.trim();
-          if (val) {
-            addUserFromText(val);
-            setTimeout(() => {
-              const freshInput = document.getElementById('inlineUsernameInput');
-              if (freshInput) freshInput.focus();
-            }, 30);
-          }
-        }
-      });
-    }
   }
 
   function addUserFromText(rawVal) {
@@ -987,7 +965,7 @@
     renderUsersTable();
     drawWheel();
     if (activeTab === 'tape') renderTape();
-    updateSpinButton(false);
+    updateStatusPill(false);
 
     const container = document.querySelector('.table-scroll-container');
     if (container) {
@@ -1003,15 +981,14 @@
       renderUsersTable();
       drawWheel();
       if (activeTab === 'tape') renderTape();
-      updateSpinButton(false);
+      updateStatusPill(false);
     }
   }
 
-  // --- WINNERS & PODIUM (LEFT PANEL) ---
+  // --- WINNERS LIST (LEFT PANEL) ---
   function renderWinnersList() {
     el.winnerCountBadge.textContent = winners.length;
 
-    // 1st place hero card
     if (winners.length > 0 && winners[0]) {
       const champ = winners[0];
       el.firstPlaceCard.style.display = 'flex';
@@ -1027,7 +1004,7 @@
         <div class="empty-winners">
           <span>🏆</span>
           <p>Победителей пока нет</p>
-          <small>Запустите рулетку, чтобы разыграть 1-е место!</small>
+          <small>Потяните рычаг, чтобы определить 1-е место!</small>
         </div>
       `;
       return;
@@ -1057,7 +1034,7 @@
             <span class="winner-time">${winner.timestamp || ''}</span>
           </div>
           <button class="restore-winner-btn" title="Вернуть участника обратно в рулетку" data-index="${index}">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
               <path d="M21 3v5h-5"/>
               <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
@@ -1083,8 +1060,26 @@
       renderUsersTable();
       drawWheel();
       if (activeTab === 'tape') renderTape();
-      updateSpinButton(false);
+      updateStatusPill(false);
     }
+  }
+
+  // --- INTERACTIVE MOVABLE PANELS ON HOVER ---
+  function setupInteractivePanels() {
+    const panels = document.querySelectorAll('.interactive-panel');
+    panels.forEach((panel) => {
+      panel.addEventListener('mousemove', (e) => {
+        const rect = panel.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        // Subtle, smooth 3D tilt
+        panel.style.transform = `perspective(1000px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-5px) scale(1.008)`;
+      });
+
+      panel.addEventListener('mouseleave', () => {
+        panel.style.transform = '';
+      });
+    });
   }
 
   // --- UTILS ---
@@ -1111,7 +1106,54 @@
 
   // --- EVENT LISTENERS ---
   function setupEventListeners() {
-    // Top Input
+    // 1. Casino Slot Machine Lever Interaction
+    if (el.casinoLeverContainer) {
+      el.casinoLeverContainer.addEventListener('click', pullLeverAndSpin);
+
+      // Support drag down
+      let isDragging = false;
+      let startY = 0;
+
+      el.casinoLeverContainer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startY = e.clientY;
+      });
+
+      window.addEventListener('mouseup', (e) => {
+        if (isDragging) {
+          isDragging = false;
+          if (e.clientY - startY > 30) {
+            pullLeverAndSpin();
+          }
+        }
+      });
+    }
+
+    // 2. Spacebar Key Shortcut
+    document.addEventListener('keydown', (e) => {
+      const activeEl = document.activeElement;
+      const isInputFocused = activeEl && (
+        activeEl.tagName === 'INPUT' ||
+        activeEl.tagName === 'TEXTAREA' ||
+        activeEl.isContentEditable
+      );
+
+      if (e.key === 'Escape' && el.winnerModal.classList.contains('active')) {
+        hideCleanWinner();
+        return;
+      }
+
+      if (e.code === 'Space' && !isInputFocused) {
+        e.preventDefault();
+        if (el.winnerModal.classList.contains('active')) {
+          hideCleanWinner();
+        } else {
+          pullLeverAndSpin();
+        }
+      }
+    });
+
+    // 3. User Input
     if (el.topUsernameInput) {
       el.topUsernameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -1135,7 +1177,7 @@
       });
     }
 
-    // Table Actions (Delete single user)
+    // 4. Table Delete Buttons
     el.usersTableBody.addEventListener('click', (e) => {
       const delBtn = e.target.closest('.row-delete-btn');
       if (delBtn) {
@@ -1144,7 +1186,7 @@
       }
     });
 
-    // Winners restore action
+    // 5. Winners list restore
     el.winnersList.addEventListener('click', (e) => {
       const restoreBtn = e.target.closest('.restore-winner-btn');
       if (restoreBtn) {
@@ -1153,41 +1195,11 @@
       }
     });
 
-    // 1st Requested Button: "Обновить все" (Reset / return all participants)
+    // 6. Action buttons
     el.resetAllBtn.addEventListener('click', resetAll);
-
-    // 2nd Requested Button: "Удалить все" (Clear all participants)
     el.deleteAllBtn.addEventListener('click', deleteAll);
 
-    // Spin Button & Shortcuts
-    el.spinBtn.addEventListener('click', spin);
-
-    document.addEventListener('keydown', (e) => {
-      const activeEl = document.activeElement;
-      const isInputFocused = activeEl && (
-        activeEl.tagName === 'INPUT' ||
-        activeEl.tagName === 'TEXTAREA' ||
-        activeEl.isContentEditable
-      );
-
-      // Escape key closes modal
-      if (e.key === 'Escape' && el.winnerModal.classList.contains('active')) {
-        hideFullscreenWinner();
-        return;
-      }
-
-      // Spacebar
-      if (e.code === 'Space' && !isInputFocused) {
-        e.preventDefault();
-        if (el.winnerModal.classList.contains('active')) {
-          hideFullscreenWinner();
-        } else {
-          spin();
-        }
-      }
-    });
-
-    // Wheel vs Tape Tabs
+    // 7. Tabs
     el.viewWheelTab.addEventListener('click', () => {
       activeTab = 'wheel';
       el.viewWheelTab.classList.add('active');
@@ -1206,7 +1218,7 @@
       renderTape();
     });
 
-    // Tools
+    // 8. Quick Tools
     el.shuffleUsersBtn.addEventListener('click', () => {
       if (isSpinning) return;
       if (users.length < 2) return;
@@ -1228,7 +1240,7 @@
       renderUsersTable();
       drawWheel();
       if (activeTab === 'tape') renderTape();
-      updateSpinButton(false);
+      updateStatusPill(false);
     });
 
     el.clearWinnersBtn.addEventListener('click', () => {
@@ -1238,43 +1250,16 @@
         winners = [];
         saveState();
         renderWinnersList();
-        updateSpinButton(false);
+        updateStatusPill(false);
       }
     });
 
-    // Bulk Add
-    el.bulkAddBtn.addEventListener('click', () => {
-      el.bulkTextarea.value = '';
-      el.bulkModal.classList.add('active');
-      el.bulkTextarea.focus();
-    });
-
-    el.bulkCancelBtn.addEventListener('click', () => {
-      el.bulkModal.classList.remove('active');
-    });
-
-    el.bulkSaveBtn.addEventListener('click', () => {
-      const text = el.bulkTextarea.value.trim();
-      if (text) {
-        addUserFromText(text);
-      }
-      el.bulkModal.classList.remove('active');
-    });
-
-    // Fullscreen Winner Overlay Buttons
-    el.closeModalBtn.addEventListener('click', hideFullscreenWinner);
-    if (el.closeModalBtnSecondary) {
-      el.closeModalBtnSecondary.addEventListener('click', hideFullscreenWinner);
-    }
-
+    // 9. Clean Winner Modal button
     el.continueSpinBtn.addEventListener('click', () => {
-      hideFullscreenWinner();
-      if (users.length > 0) {
-        setTimeout(() => spin(), 350);
-      }
+      hideCleanWinner();
     });
 
-    // Audio & Fullscreen
+    // 10. Audio & Fullscreen
     el.audioToggleBtn.addEventListener('click', () => {
       sfx.enabled = !sfx.enabled;
       el.audioToggleBtn.classList.toggle('muted', !sfx.enabled);
@@ -1300,9 +1285,10 @@
     cacheDom();
     loadState();
     setupEventListeners();
+    setupInteractivePanels();
     renderUsersTable();
     renderWinnersList();
-    updateSpinButton(false);
+    updateStatusPill(false);
 
     setTimeout(() => {
       resizeCanvas();

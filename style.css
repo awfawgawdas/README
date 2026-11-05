@@ -1,16 +1,16 @@
 /* ==========================================================================
-   RANDISE - DARKENED VIOLET-PURPLE THEME & FULLSCREEN WINNER CELEBRATION
+   RANDISE CASINO - DARKENED VIOLET-PURPLE WITH 3D BG & CASINO LEVER
    ========================================================================== */
 
 :root {
   /* Darkened Violet-Purple Palette */
   --bg-primary: #0a0312;
-  --bg-secondary: rgba(22, 9, 36, 0.78);
-  --bg-tertiary: rgba(38, 16, 61, 0.65);
-  --bg-modal: rgba(14, 4, 24, 0.96);
+  --bg-secondary: rgba(22, 9, 36, 0.72);
+  --bg-tertiary: rgba(38, 16, 61, 0.62);
+  --bg-modal: rgba(13, 3, 22, 0.96);
 
-  --panel-border: rgba(192, 132, 252, 0.16);
-  --panel-border-hover: rgba(216, 70, 239, 0.45);
+  --panel-border: rgba(192, 132, 252, 0.18);
+  --panel-border-hover: rgba(216, 70, 239, 0.55);
 
   --accent-purple-glow: rgba(168, 85, 247, 0.35);
   --accent-magenta: #d946ef;
@@ -45,7 +45,7 @@ html, body {
   width: 100%;
   font-family: var(--font-family);
   background-color: var(--bg-primary);
-  background: radial-gradient(circle at 50% 10%, #290845 0%, #140523 45%, #08020e 100%);
+  background: radial-gradient(circle at 50% 15%, #25093e 0%, #130522 45%, #08020e 100%);
   background-attachment: fixed;
   color: var(--text-main);
   overflow-x: hidden;
@@ -53,7 +53,18 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Ambient Neon Violet & Magenta Glowing Meshes */
+/* 3D WebGL Background Canvas */
+#bg3d-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ambient Glowing Background Meshes */
 body::before {
   content: '';
   position: fixed;
@@ -61,7 +72,7 @@ body::before {
   left: 15%;
   width: 65vw;
   height: 65vh;
-  background: radial-gradient(circle, rgba(147, 51, 234, 0.22) 0%, rgba(192, 38, 211, 0.08) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(147, 51, 234, 0.18) 0%, rgba(192, 38, 211, 0.05) 50%, transparent 70%);
   filter: blur(90px);
   pointer-events: none;
   z-index: 0;
@@ -74,7 +85,7 @@ body::after {
   right: 10%;
   width: 55vw;
   height: 55vh;
-  background: radial-gradient(circle, rgba(217, 70, 239, 0.18) 0%, rgba(124, 58, 237, 0.06) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(217, 70, 239, 0.14) 0%, rgba(124, 58, 237, 0.04) 50%, transparent 70%);
   filter: blur(90px);
   pointer-events: none;
   z-index: 0;
@@ -98,12 +109,7 @@ body::after {
   align-items: center;
   justify-content: space-between;
   padding: 12px 22px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--panel-border);
-  backdrop-filter: blur(24px);
-  border-radius: var(--radius-md);
   margin-bottom: 20px;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4), 0 0 25px rgba(147, 51, 234, 0.15);
 }
 
 .logo-wrap {
@@ -163,7 +169,7 @@ body::after {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   border-color: rgba(216, 70, 239, 0.4);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .icon-btn.muted svg {
@@ -173,12 +179,12 @@ body::after {
 /* 3-Column Main Grid */
 .main-grid {
   display: grid;
-  grid-template-columns: 340px 1fr 390px;
+  grid-template-columns: 330px 1fr 380px;
   gap: 20px;
   flex: 1;
 }
 
-/* Generic Panel Glassmorphism */
+/* Generic Panel Glassmorphism & Dynamic Hover Movement */
 .glass-panel {
   background: var(--bg-secondary);
   border: 1px solid var(--panel-border);
@@ -188,11 +194,14 @@ body::after {
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 16px 44px rgba(0, 0, 0, 0.45), 0 0 35px rgba(147, 51, 234, 0.1);
-  transition: border-color var(--transition-smooth);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  will-change: transform;
 }
 
+/* Interactive Movable Panels on Hover */
 .glass-panel:hover {
   border-color: var(--panel-border-hover);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55), 0 0 45px rgba(217, 70, 239, 0.25);
 }
 
 .panel-header {
@@ -247,7 +256,6 @@ body::after {
   flex-direction: column;
 }
 
-/* 1st Place Hero Card */
 .first-place-hero {
   margin: 16px;
   padding: 16px;
@@ -309,7 +317,6 @@ body::after {
   opacity: 0.85;
 }
 
-/* Winners scroll list */
 .winners-scroll {
   flex: 1;
   overflow-y: auto;
@@ -438,14 +445,14 @@ body::after {
 }
 
 /* ==========================================================================
-   CENTER PANEL - ROULETTE / WHEEL
+   CENTER PANEL - ROULETTE & CASINO SLOT LEVER
    ========================================================================== */
 .roulette-panel {
   display: flex;
   flex-direction: column;
   position: relative;
   align-items: center;
-  padding: 20px 24px 28px;
+  padding: 20px 24px 24px;
 }
 
 /* Mode Switcher Tabs */
@@ -521,16 +528,187 @@ body::after {
   white-space: nowrap;
 }
 
-/* Wheel Viewport */
+/* Roulette Stage: Lever on Left + Wheel Display */
+.roulette-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 16px;
+  position: relative;
+  margin-bottom: 16px;
+}
+
+/* Casino Slot Machine Lever */
+.casino-lever-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 8px;
+  background: rgba(18, 6, 31, 0.7);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  user-select: none;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.casino-lever-container:hover {
+  border-color: var(--accent-magenta);
+  transform: translateY(-2px);
+}
+
+.lever-badge {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #fbcfe8;
+  background: rgba(217, 70, 239, 0.2);
+  border: 1px solid rgba(217, 70, 239, 0.4);
+  padding: 3px 6px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.casino-lever {
+  width: 74px;
+  height: 240px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.lever-housing {
+  width: 44px;
+  height: 190px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.lever-socket {
+  position: absolute;
+  bottom: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #475569 0%, #1e293b 50%, #0f172a 100%);
+  border: 3px solid #94a3b8;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), inset 0 2px 6px rgba(255, 255, 255, 0.4);
+  z-index: 2;
+}
+
+.lever-pivot {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  width: 14px;
+  height: 160px;
+  transform-origin: bottom center;
+  transform: rotate(0deg);
+  transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 3;
+}
+
+/* Mechanical Lever Pull Animation */
+.casino-lever-container.pulling .lever-pivot {
+  transform: rotate(68deg) scaleY(0.92);
+  transition: transform 0.16s ease-in;
+}
+
+.lever-shaft {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 130px;
+  background: linear-gradient(90deg, #64748b 0%, #f1f5f9 45%, #94a3b8 70%, #475569 100%);
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+.lever-shaft-highlight {
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  margin-left: 2px;
+}
+
+/* Shiny Ruby/Magenta Casino Knob Ball */
+.lever-knob {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f472b6 0%, #ec4899 35%, #be185d 75%, #701a75 100%);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 6px 18px rgba(236, 72, 153, 0.6), inset 0 -3px 8px rgba(0, 0, 0, 0.5);
+  cursor: grab;
+  transition: transform 0.1s ease;
+}
+
+.lever-knob:hover {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.lever-knob:active {
+  cursor: grabbing;
+}
+
+.lever-knob-glow {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  filter: blur(1px);
+}
+
+.lever-drag-hint {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent-magenta);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.arrow-bounce {
+  animation: bounceArrow 1.2s infinite ease-in-out;
+}
+
+@keyframes bounceArrow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+/* Main Display containing wheel or tape */
+.roulette-main-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
 .wheel-container-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 530px;
+  max-width: 500px;
   aspect-ratio: 1 / 1;
-  margin-bottom: 20px;
 }
 
 #wheelCanvas {
@@ -538,22 +716,22 @@ body::after {
   height: 100%;
   display: block;
   cursor: grab;
-  filter: drop-shadow(0 14px 34px rgba(0, 0, 0, 0.6));
+  filter: drop-shadow(0 14px 34px rgba(0, 0, 0, 0.65));
 }
 
-/* Tape / CSGO Reel Viewport */
+/* Tape Viewport */
 .tape-container-wrapper {
   width: 100%;
   display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 40px 0 60px;
+  margin: 30px 0;
 }
 
 .tape-container {
   width: 100%;
-  max-width: 700px;
+  max-width: 580px;
   height: 160px;
   position: relative;
   background: rgba(18, 6, 31, 0.95);
@@ -574,28 +752,6 @@ body::after {
   transform: translateX(-50%);
   z-index: 10;
   pointer-events: none;
-}
-
-.tape-pointer-line::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 14px solid #f43f5e;
-}
-
-.tape-pointer-line::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 14px solid #f43f5e;
 }
 
 .tape-track {
@@ -632,7 +788,6 @@ body::after {
   justify-content: center;
   font-weight: 800;
   font-size: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .tape-card-name {
@@ -652,79 +807,48 @@ body::after {
   padding: 20px;
 }
 
-/* Big Spin Button */
-.spin-action-area {
+/* Status Pill Area (Replaces Old Spin Button) */
+.lever-status-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-top: auto;
+  gap: 6px;
+  margin-top: 4px;
 }
 
-.spin-btn {
-  position: relative;
-  background: linear-gradient(135deg, #9333ea 0%, #c026d3 50%, #ec4899 100%);
-  border: none;
+.lever-status-pill {
+  background: rgba(38, 16, 61, 0.85);
+  border: 1.5px solid rgba(217, 70, 239, 0.45);
   color: #fff;
-  padding: 18px 46px;
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  border-radius: 50px;
-  cursor: pointer;
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 20px rgba(147, 51, 234, 0.35);
   display: flex;
   align-items: center;
-  gap: 12px;
-  box-shadow: 0 10px 30px rgba(147, 51, 234, 0.5), 0 0 50px rgba(217, 70, 239, 0.3);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
-  overflow: hidden;
+  gap: 10px;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 
-.spin-btn::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transition: 0.5s;
+.lever-status-pill.spinning {
+  border-color: #f59e0b;
+  box-shadow: 0 4px 25px rgba(245, 158, 11, 0.5);
+  animation: pulsePill 1.2s infinite alternate;
 }
 
-.spin-btn:hover:not(:disabled) {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 14px 40px rgba(147, 51, 234, 0.65), 0 0 60px rgba(217, 70, 239, 0.45);
-}
-
-.spin-btn:hover::after {
-  left: 100%;
-}
-
-.spin-btn:active:not(:disabled) {
-  transform: translateY(1px) scale(0.98);
-}
-
-.spin-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  filter: grayscale(0.25);
-}
-
-.spin-btn.spinning {
-  animation: pulseSpinBtn 1.5s infinite alternate;
-}
-
-@keyframes pulseSpinBtn {
+@keyframes pulsePill {
   0% { transform: scale(1); filter: brightness(1); }
-  100% { transform: scale(1.04); filter: brightness(1.25); }
+  100% { transform: scale(1.03); filter: brightness(1.2); }
 }
 
 .shortcut-hint {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-dim);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .kbd {
@@ -739,14 +863,13 @@ body::after {
 }
 
 /* ==========================================================================
-   RIGHT PANEL - PARTICIPANTS & TABLE
+   RIGHT PANEL - PARTICIPANTS & TABLE (CLEAN, NO EXTRA BOTTOM PANELS)
    ========================================================================== */
 .participants-panel {
   display: flex;
   flex-direction: column;
 }
 
-/* Main Action Buttons: "Обновить все" & "Удалить все" */
 .main-action-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -766,7 +889,7 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+  transition: transform var(--transition-fast), filter var(--transition-fast);
 }
 
 .primary-action-btn.refresh-btn {
@@ -791,12 +914,11 @@ body::after {
   transform: translateY(-1px);
 }
 
-/* Secondary Tools Bar */
 .quick-tools-bar {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 16px 10px;
+  padding: 4px 16px 10px;
   border-bottom: 1px solid var(--panel-border);
 }
 
@@ -806,7 +928,7 @@ body::after {
   color: var(--text-muted);
   font-size: 11px;
   font-weight: 700;
-  padding: 5px 10px;
+  padding: 5px 12px;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -821,9 +943,8 @@ body::after {
   border-color: rgba(216, 70, 239, 0.4);
 }
 
-/* Input Area */
 .input-box-wrapper {
-  padding: 14px 16px;
+  padding: 14px 16px 12px;
   display: flex;
   gap: 10px;
 }
@@ -986,70 +1107,6 @@ body::after {
   background: rgba(244, 63, 94, 0.15);
 }
 
-/* Inline Table Input Row */
-.inline-input-row {
-  background: rgba(168, 85, 247, 0.06);
-  border-top: 1px dashed rgba(168, 85, 247, 0.3);
-  transition: background-color var(--transition-fast);
-}
-
-.inline-input-row:hover,
-.inline-input-row:focus-within {
-  background: rgba(168, 85, 247, 0.12);
-}
-
-.inline-avatar-placeholder {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-.inline-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.inline-table-input {
-  width: 100%;
-  background: rgba(14, 5, 24, 0.75);
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  border-radius: 8px;
-  padding: 8px 65px 8px 12px;
-  color: #fff;
-  font-family: inherit;
-  font-size: 13px;
-  outline: none;
-  transition: var(--transition-fast);
-}
-
-.inline-table-input:focus {
-  border-color: var(--accent-magenta);
-  background: rgba(18, 6, 31, 0.95);
-  box-shadow: 0 0 0 2px rgba(217, 70, 239, 0.3);
-}
-
-.inline-enter-hint {
-  position: absolute;
-  right: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--panel-border);
-  font-size: 10px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: #d8b4fe;
-  pointer-events: none;
-}
-
-/* Empty Table State */
 .empty-cell {
   padding: 40px 10px !important;
   text-align: center;
@@ -1071,18 +1128,17 @@ body::after {
 }
 
 /* ==========================================================================
-   FULLSCREEN WINNER CELEBRATION (НА ВЕСЬ ЭКРАН)
+   CLEAN FULLSCREEN WINNER ANNOUNCEMENT (БЕЗ ЛИШНИХ ПАНЕЛЕЙ И ПОДРОБНОСТЕЙ)
    ========================================================================== */
 .fullscreen-winner-overlay {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(circle at center, rgba(41, 10, 68, 0.97) 0%, rgba(13, 3, 22, 0.98) 100%);
+  background: radial-gradient(circle at center, rgba(38, 11, 62, 0.96) 0%, rgba(13, 3, 22, 0.98) 100%);
   backdrop-filter: blur(28px);
   z-index: 999999;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
@@ -1096,209 +1152,86 @@ body::after {
   pointer-events: auto;
 }
 
-.fullscreen-winner-content {
+.clean-winner-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 800px;
-  width: 100%;
-  position: relative;
-  transform: scale(0.85) translateY(30px);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 650px;
+  width: 90%;
+  padding: 40px;
+  background: linear-gradient(145deg, rgba(35, 12, 58, 0.9) 0%, rgba(18, 5, 32, 0.95) 100%);
+  border: 2px solid rgba(217, 70, 239, 0.5);
+  border-radius: 28px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7), 0 0 60px rgba(217, 70, 239, 0.35);
+  transform: scale(0.85) translateY(20px);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.fullscreen-winner-overlay.active .fullscreen-winner-content {
+.fullscreen-winner-overlay.active .clean-winner-card {
   transform: scale(1) translateY(0);
 }
 
-.fullscreen-close-btn {
-  position: absolute;
-  top: -60px;
-  right: 0;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--panel-border);
-  color: var(--text-muted);
-  font-size: 24px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition-fast);
+.clean-winner-sparkle {
+  font-size: 64px;
+  margin-bottom: 12px;
+  animation: bounceSparkle 1.8s infinite ease-in-out alternate;
 }
 
-.fullscreen-close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+@keyframes bounceSparkle {
+  0% { transform: scale(1) rotate(-6deg); }
+  100% { transform: scale(1.15) rotate(6deg); }
 }
 
-.fullscreen-crown {
-  font-size: 72px;
-  margin-bottom: 8px;
-  filter: drop-shadow(0 0 35px rgba(245, 158, 11, 0.8));
-  animation: floatCrown 2.5s infinite ease-in-out alternate;
-}
-
-@keyframes floatCrown {
-  0% { transform: translateY(0) rotate(-4deg); }
-  100% { transform: translateY(-14px) rotate(4deg); }
-}
-
-.fullscreen-place-pill {
-  font-size: 16px;
+/* Clean Headline: "Выпала Айя!" */
+.clean-winner-title {
+  font-size: clamp(34px, 5.5vw, 54px);
   font-weight: 900;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #fff;
-  padding: 8px 24px;
-  border-radius: 30px;
-  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5);
-  margin-bottom: 20px;
-}
-
-.fullscreen-avatar {
-  width: 110px;
-  height: 110px;
-  border-radius: 30px;
-  margin-bottom: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 42px;
-  font-weight: 900;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), 0 0 30px var(--accent-purple-glow);
-  border: 3px solid rgba(255, 255, 255, 0.4);
-}
-
-.fullscreen-title {
-  font-size: clamp(32px, 6vw, 56px);
-  font-weight: 900;
-  line-height: 1.15;
   color: #ffffff;
-  margin-bottom: 14px;
-  text-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 4px 12px rgba(0, 0, 0, 0.7);
+  line-height: 1.2;
+  margin-bottom: 16px;
+  text-shadow: 0 0 30px rgba(217, 70, 239, 0.6);
   word-break: break-word;
 }
 
-.fullscreen-title .highlight-name {
+.clean-winner-name {
   background: linear-gradient(135deg, #fbcfe8 0%, #ec4899 50%, #f59e0b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.fullscreen-subtitle {
-  font-size: 16px;
-  color: var(--text-muted);
-  max-width: 550px;
-  line-height: 1.5;
-  margin-bottom: 34px;
+.clean-winner-place {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1.5px solid rgba(245, 158, 11, 0.5);
+  padding: 8px 24px;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+  margin-bottom: 28px;
 }
 
-.fullscreen-actions {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.win-btn-primary {
+.clean-winner-btn {
   background: linear-gradient(135deg, #9333ea 0%, #c026d3 50%, #ec4899 100%);
   border: none;
   color: #fff;
   font-family: inherit;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 900;
   letter-spacing: 0.5px;
-  padding: 16px 36px;
+  padding: 16px 42px;
   border-radius: 16px;
   cursor: pointer;
   box-shadow: 0 8px 30px rgba(147, 51, 234, 0.6), 0 0 40px rgba(217, 70, 239, 0.35);
   transition: transform var(--transition-fast), filter var(--transition-fast);
 }
 
-.win-btn-primary:hover {
+.clean-winner-btn:hover {
   filter: brightness(1.15);
   transform: translateY(-2px) scale(1.02);
-}
-
-.win-btn-secondary {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--panel-border);
-  color: #fff;
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  padding: 16px 28px;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.win-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* Bulk Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(9, 2, 16, 0.88);
-  backdrop-filter: blur(14px);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-.modal-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.modal-card {
-  background: linear-gradient(145deg, #1b082f 0%, #120421 100%);
-  border: 1px solid var(--panel-border);
-  border-radius: 26px;
-  padding: 32px;
-  max-width: 480px;
-  width: 90%;
-  position: relative;
-  text-align: center;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 50px rgba(147, 51, 234, 0.25);
-  transform: translateY(20px) scale(0.95);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modal-overlay.active .modal-card {
-  transform: translateY(0) scale(1);
-}
-
-.bulk-textarea {
-  width: 100%;
-  height: 160px;
-  background: rgba(10, 3, 18, 0.85);
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  padding: 14px;
-  color: #fff;
-  font-family: inherit;
-  font-size: 14px;
-  resize: vertical;
-  outline: none;
-  margin: 16px 0 20px;
-}
-
-.bulk-textarea:focus {
-  border-color: var(--accent-magenta);
 }
 
 /* Custom Scrollbars */
@@ -1320,8 +1253,12 @@ body::after {
 /* Responsive */
 @media (max-width: 1240px) {
   .main-grid {
-    grid-template-columns: 280px 1fr 330px;
+    grid-template-columns: 280px 1fr 320px;
     gap: 16px;
+  }
+  .casino-lever {
+    width: 60px;
+    height: 200px;
   }
 }
 
@@ -1333,11 +1270,16 @@ body::after {
   .roulette-panel { order: 1; }
   .participants-panel { order: 2; }
   .winners-panel { order: 3; }
-  .wheel-container-wrapper { max-width: 440px; }
+  .wheel-container-wrapper { max-width: 420px; }
 }
 
 @media (max-width: 600px) {
   .app-container { padding: 10px; }
-  .spin-btn { padding: 14px 32px; font-size: 16px; }
-  .wheel-container-wrapper { max-width: 320px; }
+  .roulette-stage { flex-direction: column; }
+  .casino-lever-container {
+    width: 100%;
+    flex-direction: row;
+    height: 70px;
+  }
+  .wheel-container-wrapper { max-width: 300px; }
 }
